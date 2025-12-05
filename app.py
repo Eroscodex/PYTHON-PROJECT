@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, jsonify
-import ollama
+from flask import Flask, render_template, request, jsonify # type: ignore
+import ollama # type: ignore
 
 app = Flask(__name__)
 
@@ -47,7 +47,7 @@ def chat():
         return jsonify({"reply": ""})
 
     if user_input.lower() in greetings:
-        assistant_response = "Hello! How can I help you with laptops or PCs today?"
+        assistant_response = "Hey! What's up?"
         messages.append({'role': 'user', 'content': user_input})
         messages.append({'role': 'assistant', 'content': assistant_response})
         return jsonify({"reply": assistant_response})
