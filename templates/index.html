@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Assistant AI</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+<style>
+    body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0a0a23;
+    color: #00ffcc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 15px;
+    }
+
+    body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("{{ url_for('static', filename='bg.gif') }}") center center / cover no-repeat;
+    opacity: 0.4;
+    z-index: 0;
+    }
+
+    .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(15, 15, 46, 0.8); /* semi-transparent */
+    box-shadow: 0 0 25px rgba(0, 255, 153, 0.2);
+    }
+
+    .brand-logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    vertical-align: middle;
+    border-radius: 5px;
+    }
+
+
+    header, footer {
+    background: #111133;
+    padding: 14px 20px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #00ff99;
+    text-shadow: 0 0 10px #00ff99;
+    }
+
+    footer { border-top: 2px solid #00ff99; }
+
+    #chat-container {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #0f0f2e;
+    }
+
+    .message {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    line-height: 1.5;
+    word-wrap: break-word;
+    box-shadow: 0 0 8px rgba(0,255,153,0.3);
+    }
+
+    .user {
+    background: #001f3f;
+    color: #00bfff;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+    }
+
+    .assistant {
+    background: #002b1f;
+    color: #00ff99;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+    }
+
+    .welcome {
+    align-self: center;
+    text-align: center;
+    background: #002b1f;
+    color: #00ff99;
+    max-width: 90%;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,255,153,0.2);
+    }
+
+    #input-area {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+    border-top: 2px solid #00ff99;
+    background: #111133;
+    }
+
+    #userInput {
+    flex: 1;
+    max-width: 92.5%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #00ff99;
+    background: #0f0f2e;
+    color: #00ff99;
+    outline: none;
+    }
+
+    button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: #00ff99;
+    color: #0a0a23;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    }
+
+    button:hover {
+    background: #0f0f2e;
+    color: #00ff99;
+    box-shadow: 0 0 15px #00ff99;
+    }
+
+    @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+    @media(max-width:500px) {
+    .container { width: 95%; height: 90vh; }
+    .message { max-width: 95%; }
+    #input-area { flex-direction: column; }
+    #userInput, button { width: 100%; }
+    }
+</style>
+</head>
+<body>
+  
+<div class="container">
+  <header><img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="brand-logo">Tech Assistant</header>
+   <div id="chat-container">
+    <div class="welcome">Welcome! How can I help you today?</div>
+    </div>
+  <div id="input-area">
+    <input type="text" id="userInput" placeholder="Type your message...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+  <footer>Created by : Alondra, Mirandilla, and Loresto</footer>
+</div>
+
+<script>
+const chat = document.getElementById("chat-container");
+const input = document.getElementById("userInput");
+
+function addMessage(text, role){
+  const m = document.createElement("div");
+  m.className = "message " + role;
+  if(role === "assistant"){
+    m.innerHTML = text.replace(/\n/g, "<br>");
+  } else {
+    m.textContent = text;
+  }
+  chat.appendChild(m);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function sendMessage(){
+  const msg = input.value.trim();
+  if(!msg) return;
+  addMessage(msg, "user");
+  input.value = "";
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message: msg})
+    });
+    const reply = (await res.json()).reply;
+    addMessage(reply, "assistant");
+  } catch(e){
+    addMessage("Error: Could not get response.", "assistant");
+  }
+}
+
+input.addEventListener("keypress", e => { if(e.key === "Enter") sendMessage(); });
+</script>
+
+</body>
+</html>
