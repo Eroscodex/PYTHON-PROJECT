@@ -22,3 +22,6 @@ VSCODE-TERMINAL
 -	python app.py
 
 Click the http://127.0.0.1:8000
+
+myfirstproject\Scripts\activate
+
